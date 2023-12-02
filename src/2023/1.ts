@@ -1,4 +1,6 @@
 import { readFile } from 'fs/promises'
+// Note: After finishing part2 i realized it would probably be easier to just use findIndex and findLastIndex for all possible values
+// and then getting the lowest index possible, but i don't have time to refactor this now
 
 type NumberStrings =
   | 'one'
