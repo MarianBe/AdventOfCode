@@ -2,6 +2,8 @@ import { readdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import { select } from '@inquirer/prompts'
 import minimist from 'minimist'
+
+console.clear()
 const { y, d } = minimist(process.argv.slice(2))
 
 const years = await readdir('./src')
@@ -31,15 +33,16 @@ if (!existsSync(file)) {
 }
 
 const { partOne, partTwo } = await import(file)
-console.clear()
 if (partOne) {
+  console.log('------🎅------🦌------🎄------')
   console.time('Part one took')
   console.log('Solution for part one:', await partOne())
   console.timeEnd('Part one took')
-  console.log('\n________________________________\n\n')
+  console.log('------🎅------🦌------🎄------')
 }
 if (partTwo) {
   console.time('Part two took')
   console.log('Solution for part two:', await partTwo())
   console.timeEnd('Part two took')
+  console.log('------🎅------🦌------🎄------')
 }
