@@ -31,10 +31,15 @@ if (!existsSync(file)) {
 }
 
 const { partOne, partTwo } = await import(file)
-
+console.clear()
 if (partOne) {
-  console.log('Part one:', await partOne())
+  console.time('Part one took')
+  console.log('Solution for part one:', await partOne())
+  console.timeEnd('Part one took')
+  console.log('\n________________________________\n\n')
 }
 if (partTwo) {
-  console.log('Part two:', await partTwo())
+  console.time('Part two took')
+  console.log('Solution for part two:', await partTwo())
+  console.timeEnd('Part two took')
 }

@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises'
 import chunk from 'lodash/chunk'
 import Piscina from 'piscina'
-import cliProgress from 'cli-progress'
+import { SingleBar, Presets } from 'cli-progress'
 
 export type RangeMap = Range[]
 export type Range = [number, number, number]
@@ -127,23 +127,21 @@ export const getSmallestLocationForSeedRange = async (
   } = getRangeMaps(input)
   const seedRanges = getSeedRangesFromInput(input)
 
-  const allPossibleSeeds = seedRanges.reduce(
-    (acc, [, length]) => acc + length,
-    0,
-  )
-  console.log(`We have to check ${allPossibleSeeds} seeds`)
-
   /* This is quite inefficient, 
   it would probably be quicker to reverse the tree up 
   and finding the lowest location that has a seed 
   but i can't be asked to rewrite all of this,
   so pure CPU power it is */
-  const progressBar = new cliProgress.SingleBar(
+  const allPossibleSeeds = seedRanges.reduce(
+    (acc, [, length]) => acc + length,
+    0,
+  )
+  const progressBar = new SingleBar(
     {
       format: 'Progress | {bar} | {percentage}% || {value}/{total} Seeds',
       stopOnComplete: true,
     },
-    cliProgress.Presets.shades_classic,
+    Presets.shades_classic,
   )
   progressBar.start(allPossibleSeeds, 0)
   const smallestLocations = await Promise.all(
@@ -177,6 +175,7 @@ export const getSmallestLocationForSeedRange = async (
     }),
   )
   progressBar.stop()
+  piscina.destroy()
   return Math.min(...smallestLocations)
 }
 
