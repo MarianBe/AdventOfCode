@@ -31,7 +31,7 @@ export default ({
     )
     const location = getNextValueFromRangeMap(humidity, humidityToLocationMap)
     if (location < smallestLocation) smallestLocation = location
-    else if (i % 10000 === 0) port.postMessage(10000)
+    if (i % 500000 === 0) port.postMessage(500000)
   }
   return smallestLocation
 }

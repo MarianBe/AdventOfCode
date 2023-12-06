@@ -116,6 +116,9 @@ export const getSmallestLocationForSeed = (input: string): number => {
 export const getSmallestLocationForSeedRange = async (
   input: string,
 ): Promise<number> => {
+  console.log(
+    'You might want to grab a coffee for this one ☕☕\nIt takes around 2-3 Minutes on my M1 Pro Mac',
+  )
   const {
     seedToSoilMap,
     soilToFertilizerMap,
@@ -125,21 +128,37 @@ export const getSmallestLocationForSeedRange = async (
     temperatureToHumidityMap,
     humidityToLocationMap,
   } = getRangeMaps(input)
-  const seedRanges = getSeedRangesFromInput(input)
 
   /* This is quite inefficient, 
   it would probably be quicker to reverse the tree up 
   and finding the lowest location that has a seed 
   but i can't be asked to rewrite all of this,
   so pure CPU power it is */
+
+  const _seedRanges = getSeedRangesFromInput(input)
+  // Split seedranges into more smaller seedranges to distribute the work better across the CPU cores
+  const seedRanges = _seedRanges
+    .map<[number, number][]>(([start, length]) => {
+      const seedRanges: [number, number][] = []
+      const chunkSize = 20000000
+      for (let i = 0; i < length; i += chunkSize) {
+        seedRanges.push([start + i, Math.min(chunkSize, length - i)])
+      }
+      return seedRanges
+    })
+    .flat()
+
   const allPossibleSeeds = seedRanges.reduce(
     (acc, [, length]) => acc + length,
     0,
   )
   const progressBar = new SingleBar(
     {
-      format: 'Progress | {bar} | {percentage}% || {value}/{total} Seeds',
+      format:
+        'Progress | {bar} | {percentage}% | ~{eta}s left | {value}/{total} Seeds',
       stopOnComplete: true,
+      etaBuffer: 1000,
+      etaAsynchronousUpdate: true,
     },
     Presets.shades_classic,
   )
