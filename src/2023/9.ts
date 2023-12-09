@@ -1,22 +1,12 @@
 import { readFile } from 'fs/promises'
 
-export const getNextValueInChain = (
-  line: number[],
-  position: 'start' | 'end' = 'end',
-): number => {
-  const at = position === 'start' ? 0 : -1
+export const getNextValueInChain = (line: number[]): number => {
   const differences = line.reduce((acc, curr, index) => {
-    if (index === 0) {
-      return acc
-    }
+    if (index === 0) return acc
     return [...acc, curr - line[index - 1]]
   }, [])
-  if (differences.every((d) => d === 0)) {
-    return line.at(at)
-  }
-  if (position === 'start')
-    return line.at(at) - getNextValueInChain(differences, position)
-  return line.at(at) + getNextValueInChain(differences, position)
+  if (differences.every((d) => d === 0)) return line.at(-1)
+  return line.at(-1) + getNextValueInChain(differences)
 }
 
 export const partOne = async (): Promise<number> => {
@@ -24,7 +14,7 @@ export const partOne = async (): Promise<number> => {
   return input
     .split('\n')
     .map((l) => l.split(' ').map(Number))
-    .map((v) => getNextValueInChain(v))
+    .map(getNextValueInChain)
     .reduce((acc, curr) => acc + curr, 0)
 }
 
@@ -32,7 +22,7 @@ export const partTwo = async (): Promise<number> => {
   const input = await readFile('src/2023/inputs/9.txt', 'utf8')
   return input
     .split('\n')
-    .map((l) => l.split(' ').map(Number))
-    .map((v) => getNextValueInChain(v, 'start'))
+    .map((l) => l.split(' ').map(Number).reverse()) // Just reversing the input does the trick here
+    .map(getNextValueInChain)
     .reduce((acc, curr) => acc + curr, 0)
 }

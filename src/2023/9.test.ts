@@ -15,8 +15,8 @@ describe('day9Part01', () => {
 
 describe('day9Part02', () => {
   it('should get the previous value in chain', () => {
-    expect(getNextValueInChain(lines[0], 'start')).toEqual(-3)
-    expect(getNextValueInChain(lines[1], 'start')).toEqual(0)
-    expect(getNextValueInChain(lines[2], 'start')).toEqual(5)
+    expect(getNextValueInChain(lines[0].reverse())).toEqual(-3)
+    expect(getNextValueInChain(lines[1].reverse())).toEqual(0)
+    expect(getNextValueInChain(lines[2].reverse())).toEqual(5)
   })
 })
