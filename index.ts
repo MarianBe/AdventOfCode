@@ -4,8 +4,19 @@ import { select } from '@inquirer/prompts'
 import minimist from 'minimist'
 
 console.clear()
-const { y, d } = minimist(process.argv.slice(2))
+const { y, d, help } = minimist(process.argv.slice(2))
 
+if (help) {
+  console.log(`
+  This script is used to run a day's solution
+  Usage: pnpm start -y 2023 -d 6
+  Options:
+    -y, --year    Year
+    -d, --day     Day
+    --help        Show help
+  `)
+  process.exit(0)
+}
 const years = await readdir('./src')
 
 const selectedYear =

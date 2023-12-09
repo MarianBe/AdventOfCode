@@ -6,12 +6,15 @@
   "type": "module",
   "scripts": {
     "start": "NODE_OPTIONS='--import tsx --max-old-space-size=8192' node ./index.ts",
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "generate": "tsx ./generate.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@inquirer/editor": "^1.2.13",
+    "@inquirer/input": "^1.2.14",
     "@inquirer/prompts": "^3.3.0",
     "@types/jest": "^29.5.10",
     "@types/node": "^20.10.1",
