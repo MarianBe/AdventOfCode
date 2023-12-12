@@ -21,11 +21,23 @@ export const isArrangementStillPossible = (
   if ((arrangement.match(/#/g)?.length || 0) > arrangementMap.join('').length) {
     return [false]
   }
+  if (arrangement.length === 0 && arrangementMap.length === 0) {
+    return [true, arrangement, arrangementMap]
+  }
 
   const firstUnknownIndex = arrangement.indexOf('?')
   if (firstUnknownIndex === -1) {
     // Will be checked in final condition
     return [true, arrangement, arrangementMap]
+  }
+
+  // When the first group of # is longer than the first group of # in the arrangement map, it's not possible
+  if (
+    (arrangement.substring(0, firstUnknownIndex).match(/\.*\#+/g)?.[0]?.[0]
+      ?.length || 0) > arrangementMap[0]?.length ||
+    0
+  ) {
+    return [false]
   }
 
   const brokenGroups = Array.from(
@@ -77,22 +89,24 @@ export const getPossibleArrangements = (
         .join(',') === newArrangementMap.join(',')
     ) {
       cache.set(cacheKey, 1)
-
       return 1
     }
     cache.set(cacheKey, 0)
     return 0
   } else {
-    return (
-      getPossibleArrangements(
-        newArrangement.replace('?', '#'),
-        newArrangementMap,
-      ) +
-      getPossibleArrangements(
-        newArrangement.replace('?', '.'),
-        newArrangementMap,
-      )
+    const arrangementWithHash = newArrangement.replace('?', '#')
+    const hashRes = getPossibleArrangements(
+      arrangementWithHash,
+      newArrangementMap,
     )
+    cache.set(getCacheKey(arrangementWithHash, newArrangementMap), hashRes)
+    const arrangementWithDot = newArrangement.replace('?', '.')
+    const dotRes = getPossibleArrangements(
+      arrangementWithDot,
+      newArrangementMap,
+    )
+    cache.set(getCacheKey(arrangementWithDot, newArrangementMap), dotRes)
+    return hashRes + dotRes
   }
 }
 
