@@ -67,17 +67,17 @@ export const getPossibleArrangements = (
   arrangement: string,
   arrangementMap: string[],
 ): number => {
+  const cacheKey = getCacheKey(arrangement, arrangementMap)
+  if (cache.has(cacheKey)) return cache.get(cacheKey)
+
   const [isStillPossible, newArrangement, newArrangementMap] =
     isArrangementStillPossible(arrangement, arrangementMap)
-  const cacheKey = getCacheKey(newArrangement, newArrangementMap)
-  if (cache.has(cacheKey)) return cache.get(cacheKey)
 
   if (arrangement.length === 0) {
     return 0
   }
 
   if (!isStillPossible) {
-    cache.set(cacheKey, 0)
     return 0
   }
   // Arrangement is still possible
@@ -88,10 +88,8 @@ export const getPossibleArrangements = (
         .filter((a) => a)
         .join(',') === newArrangementMap.join(',')
     ) {
-      cache.set(cacheKey, 1)
       return 1
     }
-    cache.set(cacheKey, 0)
     return 0
   } else {
     const arrangementWithHash = newArrangement.replace('?', '#')
