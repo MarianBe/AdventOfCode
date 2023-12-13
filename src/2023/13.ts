@@ -1,13 +1,7 @@
 import { readFile } from 'fs/promises'
-import { get } from 'http'
 
 export const getSetsFromInput = (input: string): string[] => {
   return input.split('\n\n')
-}
-
-export const isMirror = (a: number, b: number): boolean => {
-  if (!a || !b) return true
-  return a === b
 }
 
 export const isMapReflection = (
@@ -24,7 +18,34 @@ export const isMapReflection = (
   return isMapReflection(binaryMap, startIndex - 1, width + 2)
 }
 
-export const getDuplicateNeighbourIndexes = (binaryMap: number[]): number[] => {
+export const getVerticalLineBinaryMap = (input: string): number[] => {
+  const lines = input.split('\n')
+  const verticalLines = lines[0]
+    .split('')
+    .map((_, colIndex) => lines.map((line) => line[colIndex]))
+  return verticalLines.map((line) =>
+    line.reduce((acc, char, index) => {
+      if (char === '#') {
+        return acc + Math.pow(2, index)
+      }
+      return acc
+    }, 0),
+  )
+}
+
+export const getHorizontalLineBinaryMap = (input: string): number[] => {
+  const lines = input.split('\n')
+  return lines.map((line) =>
+    line.split('').reduce((acc, char, index) => {
+      if (char === '#') {
+        return acc + Math.pow(2, index)
+      }
+      return acc
+    }, 0),
+  )
+}
+
+export const getMirrorIndexes = (binaryMap: number[]): number[] => {
   return binaryMap
     .reduce((acc, currentValue, index) => {
       if (currentValue === binaryMap[index + 1]) {
@@ -48,8 +69,10 @@ export const getSmudgeFixedBinaryMaps = (binaryMap: number[]): number[][] => {
         if (binaryMap[mirrorIndex] === currentValue) return false
         // check if its off by 1 bit
         return (
-          (binaryMap[mirrorIndex] ^ currentValue).toString(2).match(/1/g)
-            ?.length === 1
+          (binaryMap[mirrorIndex] ^ currentValue)
+            .toString(2)
+            .split('')
+            .filter((v) => v === '1')?.length === 1
         )
       })
     potentialMirrorIndexes.forEach((potentialMirrorIndex) => {
@@ -67,65 +90,26 @@ export const getReflectionLineSum = (
   binaryMap: number[],
   exclude: number[] = [],
 ): number => {
-  const duplicateNeighbourIndexes = getDuplicateNeighbourIndexes(
-    binaryMap,
-  ).filter((d) => !exclude.includes(d))
-
+  const duplicateNeighbourIndexes = getMirrorIndexes(binaryMap).filter(
+    (d) => !exclude.includes(d),
+  )
   return duplicateNeighbourIndexes.reduce((sum, index) => (sum += index + 1), 0)
 }
 
 export const getHorizontalReflectionLine = (input: string): number => {
-  const lines = input.split('\n')
-  const binaryMapped = lines.map((line) =>
-    line.split('').reduce((acc, char, index) => {
-      if (char === '#') {
-        return acc + Math.pow(2, index)
-      }
-      return acc
-    }, 0),
-  )
-  return getReflectionLineSum(binaryMapped) * 100
+  return getReflectionLineSum(getHorizontalLineBinaryMap(input)) * 100
 }
 
 export const getVerticalReflectionLine = (input: string): number => {
-  const lines = input.split('\n')
-  const verticalLines = lines[0]
-    .split('')
-    .map((_, colIndex) => lines.map((line) => line[colIndex]))
-  const binaryMapped = verticalLines.map((line) =>
-    line.reduce((acc, char, index) => {
-      if (char === '#') {
-        return acc + Math.pow(2, index)
-      }
-      return acc
-    }, 0),
-  )
-  return getReflectionLineSum(binaryMapped)
-}
-export const getSumOfInputReflections = (input: string): number => {
-  const sets = getSetsFromInput(input)
-  return sets.reduce((sum, set) => {
-    const horizontalReflectionLine = getHorizontalReflectionLine(set)
-    const verticalReflectionLine = getVerticalReflectionLine(set)
-    return sum + horizontalReflectionLine + verticalReflectionLine
-  }, 0)
+  return getReflectionLineSum(getVerticalLineBinaryMap(input))
 }
 
 export const getHorizontalReflectionLineWithSmudge = (
   input: string,
 ): number => {
-  const lines = input.split('\n')
-  const binaryMap = lines.map((line) =>
-    line.split('').reduce((acc, char, index) => {
-      if (char === '#') {
-        return acc + Math.pow(2, index)
-      }
-      return acc
-    }, 0),
-  )
-
+  const binaryMap = getHorizontalLineBinaryMap(input)
   const binaryMapsWithSmudgeFixes = getSmudgeFixedBinaryMaps(binaryMap)
-  const baseNeighbourIndexes = getDuplicateNeighbourIndexes(binaryMap)
+  const baseNeighbourIndexes = getMirrorIndexes(binaryMap)
 
   return (
     Math.max(
@@ -138,20 +122,9 @@ export const getHorizontalReflectionLineWithSmudge = (
 }
 
 export const getVerticalReflectionLineWithSmudge = (input: string): number => {
-  const lines = input.split('\n')
-  const verticalLines = lines[0]
-    .split('')
-    .map((_, colIndex) => lines.map((line) => line[colIndex]))
-  const binaryMap = verticalLines.map((line) =>
-    line.reduce((acc, char, index) => {
-      if (char === '#') {
-        return acc + Math.pow(2, index)
-      }
-      return acc
-    }, 0),
-  )
+  const binaryMap = getVerticalLineBinaryMap(input)
   const binaryMapsWithSmudgeFixes = getSmudgeFixedBinaryMaps(binaryMap)
-  const baseNeighbourIndexes = getDuplicateNeighbourIndexes(binaryMap)
+  const baseNeighbourIndexes = getMirrorIndexes(binaryMap)
 
   return Math.max(
     ...binaryMapsWithSmudgeFixes.map((m) =>
@@ -161,13 +134,20 @@ export const getVerticalReflectionLineWithSmudge = (input: string): number => {
   )
 }
 
+export const getSumOfInputReflections = (input: string): number => {
+  const sets = getSetsFromInput(input)
+  return sets.reduce((sum, set) => {
+    const horizontalReflectionLine = getHorizontalReflectionLine(set)
+    const verticalReflectionLine = getVerticalReflectionLine(set)
+    return sum + horizontalReflectionLine + verticalReflectionLine
+  }, 0)
+}
+
 export const getSumOfInputReflectionsWithSmudges = (input: string): number => {
   const sets = getSetsFromInput(input)
-  const log = []
   const res = sets.reduce((sum, set) => {
     const horizontalReflectionLine = getHorizontalReflectionLineWithSmudge(set)
     const verticalReflectionLine = getVerticalReflectionLineWithSmudge(set)
-    log.push(horizontalReflectionLine + verticalReflectionLine)
     return sum + horizontalReflectionLine + verticalReflectionLine
   }, 0)
   return res
@@ -180,7 +160,5 @@ export const partOne = async (): Promise<number> => {
 
 export const partTwo = async (): Promise<number> => {
   const input = await readFile('src/2023/inputs/13.txt', 'utf8')
-  const split = getSetsFromInput(input)
-
   return getSumOfInputReflectionsWithSmudges(input)
 }
