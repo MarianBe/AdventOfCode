@@ -1,7 +1,13 @@
 const cache = new Map<string, number>()
 
 export const getCacheKey = (arrangement: string, arrangementMap: string[]) =>
-  JSON.stringify([arrangement, arrangementMap])
+  JSON.stringify({
+    arrangement: arrangement
+      .split('.')
+      .filter((a) => a)
+      .join(','),
+    arrangementMap,
+  })
 
 export const getMultipliedLine = (
   line: string,
