@@ -1,25 +1,21 @@
 import { readFile } from 'fs/promises'
+import { PriorityQueue } from '@datastructures-js/priority-queue'
 
-type X = number
-type Y = number
 type Direction = 'R' | 'L' | 'U' | 'D'
-
-interface GridEstimateMap {
-  coordinates: string
+type XY = [number, number]
+interface Node {
+  coordinates: XY
   heatloss: number
-  explored: boolean
-  lastDirection: Direction[]
+  direction: Direction
+  directionCount: number
 }
-const DIRECTIONS: Direction[] = ['R', 'L', 'U', 'D']
+const DIRECTIONS: Direction[] = ['U', 'R', 'D', 'L']
 
 export const parseGrid = (input: string) => {
   const lines = input.split('\n')
   return lines.map((line) => line.trim().split('').map(Number))
 }
-export const getNextCoordinates = (
-  [x, y]: [X, Y],
-  direction: Direction,
-): [X, Y] => {
+export const getNextCoordinates = ([x, y]: XY, direction: Direction): XY => {
   if (direction === 'R') {
     return [x + 1, y]
   } else if (direction === 'L') {
@@ -30,90 +26,99 @@ export const getNextCoordinates = (
     return [x, y + 1]
   }
 }
-
-export const findPathWithLeastHeatloss = (input: string): number => {
+const getCacheKey = ({ coordinates, direction, directionCount }: Node) => {
+  return `${coordinates}:${direction}:${directionCount}`
+}
+export const findPathWithLeastHeatloss = (
+  input: string,
+  minStraightDirections = 0,
+  maxStraightDirections = 3,
+): number => {
   const grid = parseGrid(input)
   const gridWidth = grid[0].length
   const gridHeight = grid.length
 
-  const gridEstimates = new Map<string, GridEstimateMap>()
+  const visited = new Set<string>()
 
-  gridEstimates.set(`0,0`, {
-    coordinates: `0,0`,
-    heatloss: 0, //grid[0][0],
-    explored: false,
-    lastDirection: [],
+  const queue = new PriorityQueue<Node>((a, b) => a.heatloss - b.heatloss)
+
+  queue.enqueue({
+    coordinates: [0, 0],
+    heatloss: 0,
+    direction: 'D',
+    directionCount: 0,
+  })
+  queue.enqueue({
+    coordinates: [0, 0],
+    heatloss: 0,
+    direction: 'R',
+    directionCount: 0,
   })
 
-  const lowestHeatloss = Infinity
-  while (Array.from(gridEstimates.values()).some((v) => !v.explored)) {
-    const currentEstimate = Array.from(gridEstimates.values())
-      .sort((a, b) => a.heatloss - b.heatloss)
-      .find((v) => !v.explored)
+  const addToQueue = (node: Node) => {
+    if (visited.has(getCacheKey(node))) return
+    const [x, y] = node.coordinates
+    if (grid?.[y]?.[x] === undefined) return
 
-    currentEstimate.explored = true
-    const lastDirection = currentEstimate.lastDirection.at(-1)
-    DIRECTIONS.forEach((direction) => {
-      const [x, y] = currentEstimate.coordinates.split(',').map(Number)
-      const [nextX, nextY] = getNextCoordinates([x, y], direction)
+    const newHeatloss = node.heatloss + grid[y][x]
+    queue.enqueue({ ...node, heatloss: newHeatloss })
+  }
 
-      // out of bounds, skip
-      if (grid[nextY] === undefined || grid[nextY][nextX] === undefined) {
-        return
-      }
+  let lowestHeatloss = Infinity
+  while (!queue.isEmpty()) {
+    const node = queue.dequeue()
+    const { direction, directionCount, heatloss, coordinates } = node
+    const [x, y] = coordinates
 
-      // Too long of a straight line, skip
-      if (
-        [...currentEstimate.lastDirection, direction].splice(-4).join('') ===
-        new Array(4).fill(direction).join('')
-      ) {
-        return
-      }
-      if (
-        (lastDirection === 'R' && direction === 'L') ||
-        (lastDirection === 'L' && direction === 'R') ||
-        (lastDirection === 'U' && direction === 'D') ||
-        (lastDirection === 'D' && direction === 'U')
+    if (!grid?.[y]?.[x]) continue
+    if (visited.has(getCacheKey(node))) {
+      continue
+    }
+
+    visited.add(getCacheKey(node))
+
+    if (coordinates[0] === gridWidth - 1 && coordinates[1] === gridHeight - 1) {
+      lowestHeatloss = Math.min(lowestHeatloss, heatloss)
+      continue
+    }
+
+    if (directionCount < maxStraightDirections) {
+      const nextCoordinatesInSameDirection = getNextCoordinates(
+        coordinates,
+        direction,
       )
-        return
+      addToQueue({
+        coordinates: nextCoordinatesInSameDirection,
+        heatloss,
+        direction,
+        directionCount: directionCount + 1,
+      })
+    }
 
-      const last3Directions = [...currentEstimate.lastDirection, direction]
-        .splice(-3)
-        .join(',')
+    // We can't turn yet
+    if (directionCount < minStraightDirections) {
+      continue
+    }
 
-      const nextEstimate = gridEstimates.get(
-        `${nextX},${nextY},${last3Directions}`,
-      )
-      const nextHeatloss = currentEstimate.heatloss + grid[nextY][nextX]
+    const nextDirectionRight =
+      DIRECTIONS[(DIRECTIONS.indexOf(direction) + 1) % 4]
+    addToQueue({
+      coordinates: getNextCoordinates(coordinates, nextDirectionRight),
+      heatloss,
+      direction: nextDirectionRight,
+      directionCount: 1,
+    })
 
-      if (nextEstimate) {
-        if (nextHeatloss < nextEstimate.heatloss) {
-          nextEstimate.heatloss = nextHeatloss
-          nextEstimate.lastDirection = [
-            ...currentEstimate.lastDirection,
-            direction,
-          ]
-        }
-      } else {
-        gridEstimates.set(`${nextX},${nextY},${last3Directions}`, {
-          coordinates: `${nextX},${nextY}`,
-          heatloss: nextHeatloss,
-          explored: false,
-          lastDirection: [...currentEstimate.lastDirection, direction],
-        })
-      }
+    const nextDirectionLeft =
+      DIRECTIONS[(DIRECTIONS.indexOf(direction) + 3) % 4]
+    addToQueue({
+      coordinates: getNextCoordinates(coordinates, nextDirectionLeft),
+      direction: DIRECTIONS[(DIRECTIONS.indexOf(direction) + 3) % 4],
+      directionCount: 1,
+      heatloss,
     })
   }
-  console.log(
-    Array.from(gridEstimates.values()).filter(
-      (v) => v.coordinates === `${gridWidth - 1},${gridHeight - 1}`,
-    ),
-  )
-  return Math.min(
-    ...Array.from(gridEstimates.values())
-      .filter((v) => v.coordinates === `${gridWidth - 1},${gridHeight - 1}`)
-      .map((v) => v.heatloss),
-  )
+  return lowestHeatloss
 }
 
 export const partOne = async (): Promise<number> => {
@@ -123,5 +128,5 @@ export const partOne = async (): Promise<number> => {
 
 export const partTwo = async (): Promise<number> => {
   const input = await readFile('src/2023/inputs/17.txt', 'utf8')
-  return 0
+  return findPathWithLeastHeatloss(input, 4, 10)
 }

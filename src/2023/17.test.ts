@@ -15,13 +15,13 @@ const testInput = `2413432311323
 4322674655533`
 
 describe('day17Part01', () => {
-  it('should ', () => {
-    // expect(findPathWithLeastHeatloss(testInput)).toEqual(102)
+  it('should find the path with the least heatloss with max 3 steps straight', () => {
+    expect(findPathWithLeastHeatloss(testInput)).toEqual(102)
   })
 })
 
 describe('day17Part02', () => {
-  it('should', () => {
-    expect(1).toEqual(1)
+  it('should find the path with least heatloss with min 4 straight and max 10 straight steps', () => {
+    expect(findPathWithLeastHeatloss(testInput, 4, 10)).toEqual(94)
   })
 })
