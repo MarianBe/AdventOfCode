@@ -16,13 +16,17 @@ type Rules = BaseRule &
   (
     | { type: 'accept' | 'reject' | 'forward' }
     | {
-        type:
-          | 'conditional-forward'
-          | 'conditional-reject'
-          | 'conditional-accept'
+        type: 'conditional-reject' | 'conditional-accept'
         category: PartCategories
         operator: Operator
         value: number
+      }
+    | {
+        type: 'conditional-forward'
+        category: PartCategories
+        operator: Operator
+        value: number
+        target: string
       }
   )
 
@@ -106,7 +110,6 @@ export const checkIfPartIsAccepted = (
   while (!done) {
     const currentWorkflowRules = workflowMap.get(workflow)
     for (const rule of currentWorkflowRules) {
-      // console.log('in rule ', rule)
       if (rule.type === 'accept') {
         done = true
         accepted = true
