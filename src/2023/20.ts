@@ -1,4 +1,3 @@
-import { input } from '@inquirer/prompts'
 import { readFile } from 'fs/promises'
 import { PriorityQueue } from '@datastructures-js/priority-queue'
 
