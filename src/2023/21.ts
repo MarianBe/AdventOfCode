@@ -1,5 +1,4 @@
 import { readFile } from 'fs/promises'
-import { PriorityQueue } from '@datastructures-js/priority-queue'
 
 type Node = '#' | '.' | 'S'
 type X = number
