@@ -23,9 +23,6 @@ export const recursiveCheckPlantGroup = (
     [Y, X - 1],
     [Y, X + 1],
   ]
-  if (alreadyVisited.has(positionToString([Y, X]))) {
-    return [0, 0, 0]
-  }
 
   alreadyVisited.add(positionToString([Y, X]))
   area++
@@ -51,29 +48,6 @@ export const recursiveCheckPlantGroup = (
     sides += check[2]
   })
   return [area, perimeter, sides]
-}
-
-export const getFenceSize = (
-  input: string,
-  useSides: boolean = false,
-): number => {
-  const plantMap = getPlantMap(input)
-  const visited = new Set<string>()
-
-  return plantMap.reduce(
-    (acc, line, Y) =>
-      acc +
-      line.reduce((accLine, plant, X) => {
-        const [area, perimeter, sides] = recursiveCheckPlantGroup(
-          plant,
-          [Y, X],
-          plantMap,
-          visited,
-        )
-        return accLine + area * (useSides ? sides : perimeter)
-      }, 0),
-    0,
-  )
 }
 
 export const getCornersForPosition = (
@@ -120,6 +94,31 @@ export const getCornersForPosition = (
   return corners
 }
 
+export const getFenceSize = (
+  input: string,
+  useSides: boolean = false,
+): number => {
+  const plantMap = getPlantMap(input)
+  const visited = new Set<string>()
+
+  return plantMap.reduce(
+    (acc, line, Y) =>
+      acc +
+      line.reduce((accLine, plant, X) => {
+        if (visited.has(positionToString([Y, X]))) {
+          return accLine
+        }
+        const [area, perimeter, sides] = recursiveCheckPlantGroup(
+          plant,
+          [Y, X],
+          plantMap,
+          visited,
+        )
+        return accLine + area * (useSides ? sides : perimeter)
+      }, 0),
+    0,
+  )
+}
 export const partOne = async (): Promise<number> => {
   const input = await readFile('src/2024/inputs/12.txt', 'utf8')
   return getFenceSize(input)
