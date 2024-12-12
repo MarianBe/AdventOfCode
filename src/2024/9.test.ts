@@ -100,7 +100,7 @@ it('should split file when free space is smaller', () => {
 
   expect(getChecksumForDiskmap(diskmap)).toEqual(1928)
 })
-it('should split file when free space is smaller', () => {
+it('should not split file when free space is smaller and just use the first free block', () => {
   const diskmap = leftShiftWholeFilesOnDiskmap(parseToDiskMap(testInput))
 
   expect(getChecksumForDiskmap(diskmap)).toEqual(2858)
