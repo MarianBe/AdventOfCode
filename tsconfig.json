@@ -7,6 +7,10 @@
     "isolatedModules": true,
     "target": "ESNext",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "paths": {
+      "@helpers": ["helpers.ts"]
+    }
   }
 }

@@ -1,30 +1,25 @@
 import { readFile } from 'fs/promises'
+import { stringify, to2DimensionalArray, Coordinates } from '@helpers'
 
-export type Position = [number, number]
 type PlantMap = string[][]
-
-export const getPlantMap = (input: string): PlantMap =>
-  input.split('\n').map((line) => line.split(''))
-
-export const positionToString = ([y, x]: Position): string => `${y}|${x}`
 
 export const recursiveCheckPlantGroup = (
   plant: string,
-  [Y, X]: Position,
+  [Y, X]: Coordinates,
   plantmap: PlantMap,
   alreadyVisited: Set<string>,
 ): [number, number, number] => {
   let area = 0
   let perimeter = 0
   let sides = 0
-  const neighbours: Position[] = [
+  const neighbours: Coordinates[] = [
     [Y - 1, X],
     [Y + 1, X],
     [Y, X - 1],
     [Y, X + 1],
   ]
 
-  alreadyVisited.add(positionToString([Y, X]))
+  alreadyVisited.add(stringify(Y, X))
   area++
   sides += getCornersForPosition([Y, X], plantmap)
   neighbours.forEach((neighbour) => {
@@ -34,7 +29,7 @@ export const recursiveCheckPlantGroup = (
       perimeter++
       return
     }
-    if (alreadyVisited.has(positionToString(neighbour))) {
+    if (alreadyVisited.has(stringify(neighbour))) {
       return
     }
     const check = recursiveCheckPlantGroup(
@@ -51,7 +46,7 @@ export const recursiveCheckPlantGroup = (
 }
 
 export const getCornersForPosition = (
-  [Y, X]: Position,
+  [Y, X]: Coordinates,
   plantMap: PlantMap,
 ): number => {
   let corners = 0
@@ -98,14 +93,14 @@ export const getFenceSize = (
   input: string,
   useSides: boolean = false,
 ): number => {
-  const plantMap = getPlantMap(input)
+  const plantMap = to2DimensionalArray<PlantMap>(input)
   const visited = new Set<string>()
 
   return plantMap.reduce(
     (acc, line, Y) =>
       acc +
       line.reduce((accLine, plant, X) => {
-        if (visited.has(positionToString([Y, X]))) {
+        if (visited.has(stringify(Y, X))) {
           return accLine
         }
         const [area, perimeter, sides] = recursiveCheckPlantGroup(

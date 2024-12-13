@@ -1,9 +1,5 @@
-import {
-  getFenceSize,
-  getCornersForPosition,
-  getPlantMap,
-  recursiveCheckPlantGroup,
-} from './12'
+import { to2DimensionalArray } from '@helpers'
+import { getFenceSize, getCornersForPosition } from './12'
 
 const testInput = `RRRRIICCFF
 RRRRIICCCF
@@ -30,7 +26,7 @@ describe('day12Part01', () => {
 
 describe('day12Part02', () => {
   it('should get the corners for a position', () => {
-    const plantMap = getPlantMap(shortTestInput)
+    const plantMap = to2DimensionalArray(shortTestInput)
 
     expect(getCornersForPosition([0, 0], plantMap)).toEqual(2)
     expect(getCornersForPosition([0, 1], plantMap)).toEqual(0)
@@ -38,7 +34,7 @@ describe('day12Part02', () => {
     expect(getCornersForPosition([0, 3], plantMap)).toEqual(2)
   })
   it('should get the corners for a position on our bigger input', () => {
-    const plantMap = getPlantMap(testInput)
+    const plantMap = to2DimensionalArray(testInput)
 
     expect(getCornersForPosition([4, 9], plantMap)).toEqual(2)
     expect(getCornersForPosition([5, 9], plantMap)).toEqual(1)
@@ -48,7 +44,7 @@ describe('day12Part02', () => {
     expect(getCornersForPosition([8, 8], plantMap)).toEqual(1)
   })
   it('should handle edge-cases for corners', () => {
-    const plantMap = getPlantMap(`OXO
+    const plantMap = to2DimensionalArray(`OXO
 XXX
 OXO`)
 
@@ -63,7 +59,7 @@ OXO`)
     expect(getCornersForPosition([2, 2], plantMap)).toEqual(4)
   })
   it('should handle diagonal corners', () => {
-    const plantMap = getPlantMap(`AAC
+    const plantMap = to2DimensionalArray(`AAC
 AAF
 GHA`)
 
