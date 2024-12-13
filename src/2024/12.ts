@@ -1,5 +1,12 @@
 import { readFile } from 'fs/promises'
-import { stringify, to2DimensionalArray, Coordinates } from '@helpers'
+import {
+  stringify,
+  to2DimensionalArray,
+  Coordinates,
+  DiagonalDirections,
+  getOffsetForDirection,
+  AllDirections,
+} from '@helpers'
 
 type PlantMap = string[][]
 
@@ -51,16 +58,9 @@ export const getCornersForPosition = (
 ): number => {
   let corners = 0
   const plant = plantMap[Y][X]
-  const [tl, t, tr, l, r, bl, b, br] = [
-    [Y - 1, X - 1],
-    [Y - 1, X],
-    [Y - 1, X + 1],
-    [Y, X - 1],
-    [Y, X + 1],
-    [Y + 1, X - 1],
-    [Y + 1, X],
-    [Y + 1, X + 1],
-  ].map((pos) => plantMap?.[pos[0]]?.[pos[1]])
+  const [t, r, b, l, tl, tr, bl, br] = AllDirections.map((d) =>
+    getOffsetForDirection(d, [Y, X]),
+  ).map((pos) => plantMap?.[pos[0]]?.[pos[1]])
 
   // TopLeftOuterCorner
   if (t !== plant && l !== plant) corners++

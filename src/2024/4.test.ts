@@ -1,5 +1,5 @@
+import { to2DimensionalArray } from '@helpers'
 import {
-  parseInput,
   getNextCharacterInDirection,
   countXMASOccurrences,
   countX_MASOccurences,
@@ -22,7 +22,7 @@ MMMMMMMMMM
 MMMMMMMMMM`
 describe('day4Part01', () => {
   it('should parse the input to a 2-Dimensional character array', () => {
-    expect(parseInput(testInput)[0]).toEqual([
+    expect(to2DimensionalArray(testInput)[0]).toEqual([
       'M',
       'M',
       'M',
@@ -36,28 +36,22 @@ describe('day4Part01', () => {
     ])
   })
   it('should correctly get the characters we need', () => {
-    const wordSearch = parseInput(testInput)
-    expect(
-      getNextCharacterInDirection(wordSearch, [2, 5], 'topleft', 0),
-    ).toEqual('M')
-    expect(
-      getNextCharacterInDirection(wordSearch, [2, 5], 'topleft', 1),
-    ).toEqual('X')
-    expect(
-      getNextCharacterInDirection(wordSearch, [2, 5], 'topleft', 2),
-    ).toEqual('S')
-    expect(
-      getNextCharacterInDirection(wordSearch, [2, 5], 'topleft', 3),
-    ).toEqual(undefined)
-    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'left', 1)).toEqual(
+    const wordSearch = to2DimensionalArray(testInput)
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'tl', 0)).toEqual(
+      'M',
+    )
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'tl', 1)).toEqual(
       'X',
     )
-    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'right', 1)).toEqual(
-      'A',
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'tl', 2)).toEqual(
+      'S',
     )
-    expect(
-      getNextCharacterInDirection(wordSearch, [2, 5], 'bottom', 1),
-    ).toEqual('S')
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'tl', 3)).toEqual(
+      undefined,
+    )
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'l', 1)).toEqual('X')
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'r', 1)).toEqual('A')
+    expect(getNextCharacterInDirection(wordSearch, [2, 5], 'b', 1)).toEqual('S')
   })
   it('should be able to count all XMAS in our testInput', () => {
     expect(countXMASOccurrences(testInput)).toEqual(18)

@@ -1,10 +1,10 @@
+import { stringify } from '@helpers'
 import {
   createMazeFromInput,
   locateStartPosition,
   getDirectionalOffset,
   rotateClockwise,
   traverseMaze,
-  serializePosition,
   placeWallInMaze,
   detectLoop,
   findAllPossibleLoops,
@@ -56,19 +56,12 @@ describe('Day 6', () => {
     })
   })
 
-  describe('serializePosition', () => {
-    it('should serialize coordinates correctly', () => {
-      expect(serializePosition([1, 2])).toBe('1|2')
-      expect(serializePosition([1, 2], 'Up')).toBe('1|2|Up')
-    })
-  })
-
   describe('traverseMaze', () => {
     it('should collect visited tiles', () => {
       const maze = createMazeFromInput(testInput)
       const visited = traverseMaze(maze)
       expect(visited.size).toBeGreaterThan(0)
-      expect(visited.has(serializePosition([6, 4]))).toBeTruthy()
+      expect(visited.has(stringify([6, 4]))).toBeTruthy()
     })
   })
 

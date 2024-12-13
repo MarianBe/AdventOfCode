@@ -1,4 +1,5 @@
 /* eslint-disable no-constant-condition */
+import { stringify, to2DimensionalArray } from '@helpers'
 import { readFile } from 'fs/promises'
 
 type TerrainType = '.' | '#' | '^'
@@ -9,12 +10,6 @@ export type Coordinates = [Y, X]
 type VisitedTiles = Set<string>
 type LoopingPaths = Set<string>
 export type Direction = 'Up' | 'Down' | 'Left' | 'Right'
-
-export const serializePosition = (
-  coordinate: Coordinates,
-  direction?: Direction,
-): string =>
-  `${coordinate[0]}|${coordinate[1]}` + (direction ? `|${direction}` : '')
 
 export const createMazeFromInput = (input: string): Maze =>
   input.split('\n').map((line) => line.split('') as TerrainType[])
@@ -74,7 +69,7 @@ export const detectLoop = (
       currentPosition[0] + offset[0],
       currentPosition[1] + offset[1],
     ]
-    const nextStepKey = serializePosition(nextPosition, currentDirection)
+    const nextStepKey = `${nextPosition[0]}|${nextPosition[1]}|${currentDirection}`
 
     if (visited.has(nextStepKey)) {
       loopFound = true
@@ -99,9 +94,7 @@ export const detectLoop = (
 export const traverseMaze = (maze: Maze): VisitedTiles => {
   let direction: Direction = 'Up'
   let currentPosition: Coordinates = locateStartPosition(maze)
-  const visitedTiles: VisitedTiles = new Set([
-    serializePosition(currentPosition),
-  ])
+  const visitedTiles: VisitedTiles = new Set([stringify(currentPosition)])
 
   while (true) {
     const offset = getDirectionalOffset(direction)
@@ -119,7 +112,7 @@ export const traverseMaze = (maze: Maze): VisitedTiles => {
       continue
     }
 
-    visitedTiles.add(serializePosition(nextPosition))
+    visitedTiles.add(stringify(nextPosition))
     currentPosition = nextPosition
   }
   return visitedTiles
@@ -136,7 +129,7 @@ export const findAllPossibleLoops = (maze: Maze): LoopingPaths => {
         if (
           detectLoop(placeWallInMaze(maze, [Y, X]), startPosition, direction)
         ) {
-          possibleLoops.add(serializePosition([Y, X]))
+          possibleLoops.add(stringify([Y, X]))
         }
       }
     })
@@ -146,12 +139,12 @@ export const findAllPossibleLoops = (maze: Maze): LoopingPaths => {
 
 export const partOne = async (): Promise<number> => {
   const input = await readFile('src/2024/inputs/6.txt', 'utf8')
-  return traverseMaze(createMazeFromInput(input)).size
+  return traverseMaze(to2DimensionalArray<Maze>(input)).size
 }
 
 export const partTwo = async (): Promise<number> => {
   const input = await readFile('src/2024/inputs/6.txt', 'utf8')
-  const maze = createMazeFromInput(input)
+  const maze = to2DimensionalArray<Maze>(input)
   console.log('🕒 This takes around 12 seconds, please wait 🕒')
   return findAllPossibleLoops(maze).size
 }

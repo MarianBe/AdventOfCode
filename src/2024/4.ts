@@ -1,40 +1,35 @@
 import { readFile } from 'fs/promises'
+import {
+  to2DimensionalArray,
+  Coordinates,
+  DiagonalDirections,
+  AllDirections,
+} from '@helpers'
 
 // 2-Dimensional Array of single characters
 type WordSearch = string[][]
-const DiagonalDirections = ['topleft', 'topright', 'bottomleft', 'bottomright']
-const Directions = [...DiagonalDirections, 'top', 'right', 'bottom', 'left']
-type DiagonalDirections = (typeof DiagonalDirections)[number]
-type Direction = (typeof Directions)[number]
-type Coordinates = [number, number]
-
-export const parseInput = (input: string): WordSearch => {
-  return input.split('\n').map((line) => line.split(''))
-}
 
 export const getNextCharacterInDirection = (
   wordSearch: WordSearch,
   currentPosition: Coordinates,
-  direction: Direction,
+  direction: AllDirections,
   distance: number,
 ): string | undefined => {
   const [y, x] = currentPosition
-  if (direction === 'topleft') return wordSearch?.[y - distance]?.[x - distance]
-  if (direction === 'top') return wordSearch?.[y - distance]?.[x]
-  if (direction === 'topright')
-    return wordSearch?.[y - distance]?.[x + distance]
-  if (direction === 'right') return wordSearch?.[y]?.[x + distance]
-  if (direction === 'bottomright')
-    return wordSearch?.[y + distance]?.[x + distance]
-  if (direction === 'bottom') return wordSearch?.[y + distance]?.[x]
-  if (direction === 'bottomleft')
-    return wordSearch?.[y + distance]?.[x - distance]
-  if (direction === 'left') return wordSearch?.[y]?.[x - distance]
+
+  if (direction === 'tl') return wordSearch?.[y - distance]?.[x - distance]
+  if (direction === 't') return wordSearch?.[y - distance]?.[x]
+  if (direction === 'tr') return wordSearch?.[y - distance]?.[x + distance]
+  if (direction === 'r') return wordSearch?.[y]?.[x + distance]
+  if (direction === 'br') return wordSearch?.[y + distance]?.[x + distance]
+  if (direction === 'b') return wordSearch?.[y + distance]?.[x]
+  if (direction === 'bl') return wordSearch?.[y + distance]?.[x - distance]
+  if (direction === 'l') return wordSearch?.[y]?.[x - distance]
 }
 
 // Find all "XMAS" in the puzzle
 export const countXMASOccurrences = (input: string): number => {
-  const wordSearch = parseInput(input)
+  const wordSearch = to2DimensionalArray<WordSearch>(input)
 
   // These nested reduce statements might be a bit hard to read so I added some comments
   // First we go through each line of the WordSearch / 2-Dimensional Array
@@ -49,7 +44,7 @@ export const countXMASOccurrences = (input: string): number => {
         return (
           lineAcc +
           // We check each direction if the pattern continues there
-          Directions.reduce((dirAcc, direction) => {
+          AllDirections.reduce((dirAcc, direction) => {
             if (
               ['M', 'A', 'S'].every(
                 (char, index) =>
@@ -74,7 +69,7 @@ export const countXMASOccurrences = (input: string): number => {
 
 // Find all occurences of "MAS" in an X Shape
 export const countX_MASOccurences = (input: string): number => {
-  const wordSearch = parseInput(input)
+  const wordSearch = to2DimensionalArray<WordSearch>(input)
 
   return wordSearch.reduce(
     (acc, line, y) =>

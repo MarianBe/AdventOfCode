@@ -1,5 +1,5 @@
+import { to2DimensionalArray } from '@helpers'
 import {
-  parseGrid,
   collectAntennaPositions,
   findAntinodes,
   positionToString,
@@ -10,12 +10,12 @@ import {
 
 describe('parseGrid', () => {
   it('should parse single line input', () => {
-    expect(parseGrid('..A.')).toEqual([['.', '.', 'A', '.']])
+    expect(to2DimensionalArray('..A.')).toEqual([['.', '.', 'A', '.']])
   })
 
   it('should parse multi-line input', () => {
     const input = '...\n.A.\n...'
-    expect(parseGrid(input)).toEqual([
+    expect(to2DimensionalArray(input)).toEqual([
       ['.', '.', '.'],
       ['.', 'A', '.'],
       ['.', '.', '.'],

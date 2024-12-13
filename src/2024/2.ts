@@ -11,7 +11,7 @@ type Direction = 'inc' | 'dec'
 export const checkKeepsDecreasingOrIncreasing = (
   prev: number | undefined,
   curr: number,
-  direction?: Direction,
+  direction?: Direction | false,
 ): Direction | false | undefined => {
   if (!prev) return undefined
   if (curr === prev) return false

@@ -1,15 +1,9 @@
 import { readFile } from 'fs/promises'
+import { to2DimensionalNumberArray, Coordinates } from '@helpers'
 
 type HeightMap = number[][]
-type RowIndex = number
-type ColumnIndex = number
-export type Position = [RowIndex, ColumnIndex]
-
-export const parseHeightMapFromInput = (input: string): HeightMap =>
-  input.split('\n').map((line) => line.split('').map(Number))
-
-export const findStartingPoints = (heightMap: HeightMap): Position[] => {
-  const startPoints: Position[] = []
+export const findStartingPoints = (heightMap: HeightMap): Coordinates[] => {
+  const startPoints: Coordinates[] = []
   heightMap.forEach((row, rowIndex) =>
     row.forEach((height, colIndex) => {
       if (height === 0) startPoints.push([rowIndex, colIndex])
@@ -19,12 +13,12 @@ export const findStartingPoints = (heightMap: HeightMap): Position[] => {
 }
 
 export const findCompletePaths = (
-  currentPosition: Position,
+  currentPosition: Coordinates,
   heightMap: HeightMap,
 ): string[] => {
   const [row, col] = currentPosition
   const currentHeight = heightMap[row][col]
-  const adjacentPositions: Position[] = [
+  const adjacentPositions: Coordinates[] = [
     [row - 1, col], // North
     [row + 1, col], // South
     [row, col - 1], // West
@@ -48,7 +42,7 @@ export const findCompletePaths = (
 }
 
 export const calculateTotalEndpoints = (input: string): number => {
-  const heightMap = parseHeightMapFromInput(input)
+  const heightMap = to2DimensionalNumberArray<HeightMap>(input)
   const startingPoints = findStartingPoints(heightMap)
   return startingPoints.reduce((total, position) => {
     const fullPaths = findCompletePaths(position, heightMap)
@@ -58,7 +52,7 @@ export const calculateTotalEndpoints = (input: string): number => {
 }
 
 export const calculateTotalPaths = (input: string): number => {
-  const heightMap = parseHeightMapFromInput(input)
+  const heightMap = to2DimensionalNumberArray<HeightMap>(input)
   const startingPoints = findStartingPoints(heightMap)
   return startingPoints.reduce((total, position) => {
     const completePaths = findCompletePaths(position, heightMap)

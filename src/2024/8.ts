@@ -1,11 +1,9 @@
 import { readFile } from 'fs/promises'
+import { to2DimensionalArray } from '@helpers'
 
 export type Grid = string[][]
 export type Position = [number, number]
 export type AntennaPositions = Map<string, Position[]>
-
-export const parseGrid = (input: string): Grid =>
-  input.split('\n').map((line) => line.split(''))
 
 export const collectAntennaPositions = (grid: Grid): AntennaPositions => {
   const positions = new Map()
@@ -78,7 +76,7 @@ export const calculateAntinodes = (
   input: string,
   allowMultipleSteps = false,
 ): Set<string> => {
-  const grid = parseGrid(input)
+  const grid = to2DimensionalArray<Grid>(input)
   const antennas = [...collectAntennaPositions(grid).entries()]
   const antinodes = new Set<string>()
 

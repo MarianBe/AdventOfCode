@@ -1,10 +1,9 @@
+import { Coordinates, to2DimensionalNumberArray } from '@helpers'
 import {
   calculateTotalEndpoints,
   calculateTotalPaths,
   findCompletePaths,
   findStartingPoints,
-  parseHeightMapFromInput,
-  Position,
 } from './10'
 
 const testInput = `89010123
@@ -24,11 +23,11 @@ describe('parseHeightMapFromInput', () => {
       [4, 5, 6],
       [7, 8, 9],
     ]
-    expect(parseHeightMapFromInput(input)).toEqual(expected)
+    expect(to2DimensionalNumberArray(input)).toEqual(expected)
   })
 
   it('should parse single row input', () => {
-    expect(parseHeightMapFromInput('123')).toEqual([[1, 2, 3]])
+    expect(to2DimensionalNumberArray('123')).toEqual([[1, 2, 3]])
   })
 })
 
@@ -39,7 +38,7 @@ describe('findStartingPoints', () => {
       [1, 0, 1],
       [0, 1, 0],
     ]
-    const expected: Position[] = [
+    const expected: Coordinates[] = [
       [0, 0],
       [0, 2],
       [1, 1],
