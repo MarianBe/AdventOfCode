@@ -43,3 +43,25 @@ export const getOffsetForDirection = (
       return [Y, X]
   }
 }
+
+export const findCoordinatesIn2DimensionalArray = <
+  T extends (string | number)[][],
+>(
+  map: T,
+  search: string | number,
+): Coordinates | undefined => {
+  let X
+  const Y = map.findIndex((row) => {
+    const _r = row.findIndex((item) => item === search)
+    if (_r !== -1) {
+      X = _r
+      return true
+    }
+    return false
+  })
+  if (Y === -1 || !X) return undefined
+  return [Y, X]
+}
+
+export const print2DimensionalArray = (array: (string | number)[][]) =>
+  console.log(array.map((l) => l.join('')).join('\n'))

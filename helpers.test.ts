@@ -1,4 +1,8 @@
-import { to2DimensionalArray, stringify } from './helpers'
+import {
+  to2DimensionalArray,
+  stringify,
+  findCoordinatesIn2DimensionalArray,
+} from './helpers'
 describe('helpers', () => {
   describe('to2DimensionalArray', () => {
     it('should convert string input to 2D array', () => {
@@ -35,6 +39,35 @@ describe('helpers', () => {
 
     it('should handle empty arguments', () => {
       expect(stringify()).toBe('')
+    })
+  })
+
+  describe('findCoordinatesIn2DimensionalArray', () => {
+    it('should find coordinates of a string in 2D array', () => {
+      const map = [
+        ['a', 'b', 'c'],
+        ['d', 'e', 'f'],
+        ['g', 'h', 'i'],
+      ]
+      expect(findCoordinatesIn2DimensionalArray(map, 'e')).toEqual([1, 1])
+    })
+
+    it('should find coordinates of a number in 2D array', () => {
+      const map = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+      ]
+      expect(findCoordinatesIn2DimensionalArray(map, 5)).toEqual([1, 1])
+    })
+
+    it('should return undefined if the element is not found', () => {
+      const map = [
+        ['a', 'b', 'c'],
+        ['d', 'e', 'f'],
+        ['g', 'h', 'i'],
+      ]
+      expect(findCoordinatesIn2DimensionalArray(map, 'z')).toEqual(undefined)
     })
   })
 })
