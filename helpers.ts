@@ -65,3 +65,9 @@ export const findCoordinatesIn2DimensionalArray = <
 
 export const print2DimensionalArray = (array: (string | number)[][]) =>
   console.log(array.map((l) => l.join('')).join('\n'))
+
+export const updateLog = (log: string) => {
+  process.stdout.clearLine(0)
+  process.stdout.cursorTo(0)
+  process.stdout.write(log)
+}
